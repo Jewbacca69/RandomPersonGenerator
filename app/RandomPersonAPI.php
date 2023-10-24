@@ -2,6 +2,7 @@
 
 namespace RandomPersonGenerator;
 
+use Carbon\Carbon;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -15,16 +16,29 @@ class RandomPersonAPI
         $this->client = HttpClient::create();
     }
 
-    public function fetchData(): ?RandomPerson
+    public function fetchData(): Person
     {
         $response = $this->client->request("GET", self::API_URL);
 
-        $responseData = $response->toArray();
+        $responseData = json_decode($response->getContent());
 
-        if (isset($responseData["results"][0])) {
-            return new RandomPerson($responseData["results"][0]);
-        }
+        $response = $responseData->results[0];
 
-        return null;
+        $person = new Person(
+            new PersonDetails(
+                $response->name->title,
+                $response->name->first,
+                $response->name->last),
+            $response->gender,
+            new Carbon($response->dob->date),
+            new PersonAddress(
+                $response->location->country,
+                $response->location->city,
+                $response->location->street->name,
+                (string)$response->location->street->number
+            )
+        );
+
+        return $person;
     }
 }
