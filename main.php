@@ -2,8 +2,16 @@
 
 require_once "vendor/autoload.php";
 
-use RandomPersonGenerator\Application;
+use RandomPersonGenerator\RandomPersonAPI;
 
-$app = new Application();
+$randomPersonApi = new RandomPersonAPI();
 
-$app->run();
+$randomPerson = $randomPersonApi->fetchData();
+
+echo "
+Full name: {$randomPerson->getPersonDetails()->getTitle()} {$randomPerson->getPersonDetails()->getName()} {$randomPerson->getPersonDetails()->getSurname()}
+Age : {$randomPerson->getAge()}
+Gender : {$randomPerson->getGender()}
+Date of birth : {$randomPerson->getDateOfBirth()->format("Y-m-d")}
+Address : {$randomPerson->getAddress()->getFullAddress()}
+";
